@@ -1,0 +1,2 @@
+include ':dapp-sdk-wallet'
+rootProject.name='Dapp Sdk Wallet'

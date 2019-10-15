@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Dapp Sdk Wallet</string>
+    <string name="title_activity_reader">ReaderActivity</string>
+</resources>
