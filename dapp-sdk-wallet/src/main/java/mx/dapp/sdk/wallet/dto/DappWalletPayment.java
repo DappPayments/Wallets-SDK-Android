@@ -8,12 +8,14 @@ public class DappWalletPayment {
     private String amount;
     private String description;
     private DappUser user;
+    private JSONObject data;
 
     public DappWalletPayment(JSONObject data) {
         this.id = data.optString("id");
         this.amount = data.optString("amount");
         this.description = data.optString("description");
         this.user = new DappUser(data.optJSONObject("dapp_user"));
+        this.data = data;
     }
 
     public String getId() {
@@ -30,6 +32,10 @@ public class DappWalletPayment {
 
     public DappUser getUser() {
         return user;
+    }
+
+    public JSONObject getData() {
+        return data;
     }
 
     @Override

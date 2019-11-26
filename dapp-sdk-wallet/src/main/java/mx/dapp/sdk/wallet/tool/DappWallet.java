@@ -13,6 +13,7 @@ import mx.dapp.sdk.wallet.network.Conection;
 import mx.dapp.sdk.wallet.network.DappResponseProcess;
 import mx.dapp.sdk.wallet.utils.DappEnviroment;
 import mx.dapp.sdk.wallet.utils.DappException;
+import mx.dapp.sdk.wallet.utils.DappQRType;
 import mx.dapp.sdk.wallet.utils.DappWalletCallback;
 
 
@@ -59,10 +60,8 @@ public class DappWallet {
     public static boolean isValidDappQR(String code) throws DappException {
         if (isInit()) {
             if (code != null && code.length() > 0) {
-                if (code.contains(DAPP_HOST)) {
-                    code = getDappCode(code);
-                    return code.length() > 0;
-                }
+                String result = getResult(code);
+                return result.length() > 0;
             }
         } else {
             throw new DappException(RESULT_NOT_INIT_MESSAGE, RESULT_NOT_INIT);
@@ -74,8 +73,8 @@ public class DappWallet {
         dappWalletCallback = userCallback;
         try {
             if (isValidDappQR(code)) {
-                code = getDappCode(code);
-                Conection.readCode(code, new DappResponseProcess() {
+                String result = getResult(code);
+                Conection.readCode(result, new DappResponseProcess() {
                     @Override
                     public void processStart() {
 
@@ -100,10 +99,14 @@ public class DappWallet {
         }
     }
 
+    private static String getResult(String code) {
+        return code.contains(DAPP_HOST) ? getDappCode(code) : getCodiDappCode(code);
+    }
+
 
     private static void readCode(String code) throws DappException {
         if (isValidDappQR(code)) {
-            code = getDappCode(code);
+            String result = getResult(code);
             Conection.readCode(code, new DappResponseProcess() {
                 @Override
                 public void processStart() {
@@ -154,8 +157,70 @@ public class DappWallet {
     }
 
 
+    public static boolean isCodi(String code) {
+        try {
+            JSONObject jsonObject = new JSONObject(code);
+            return validateJsonCodi(jsonObject);
+        } catch (JSONException e) {
+            return false;
+        }
+    }
+
+    private static boolean validateJsonCodi(JSONObject jsonObject) {
+        boolean top = jsonObject.has("TPY") && jsonObject.has("v") && jsonObject.has("ic") && jsonObject.has("CRY");
+        if (top) {
+            return validateJsonCodiV(jsonObject.optJSONObject("v")) && validateJsonCodiIC(jsonObject.optJSONObject("ic"));
+        }
+        return false;
+    }
+
+    private static boolean validateJsonCodiV(JSONObject jsonObject) {
+        return jsonObject.has("DEV");
+    }
+
+    private static boolean validateJsonCodiIC(JSONObject jsonObject) {
+        return jsonObject.has("IDC") && jsonObject.has("SER") && jsonObject.has("ENC");
+    }
+
+
+    public static DappQRType getQRType(String code) {
+        DappQRType type = DappQRType.UNKNOWN;
+        if (code.contains(DAPP_HOST)) {
+            type = DappQRType.DAPP;
+        } else {
+            try {
+                JSONObject jsonObject = new JSONObject(code);
+                if (validateJsonCodi(jsonObject)) {
+                    if (jsonObject.has("dapp")) {
+                        type = DappQRType.CODI_DAPP;
+                    } else {
+                        type = DappQRType.CODI;
+                    }
+                } else {
+                    if (jsonObject.has("dapp")) {
+                        type = DappQRType.DAPP;
+                    }
+                }
+            } catch (JSONException e) {
+                return DappQRType.UNKNOWN;
+            }
+        }
+        return type;
+    }
+
+
     private static String getDappCode(String code) {
         return code.substring(code.lastIndexOf("/") + 1, code.length());
+    }
+
+    private static String getCodiDappCode(String code) {
+        JSONObject json = null;
+        try {
+            json = new JSONObject(code);
+        } catch (JSONException e) {
+            return "";
+        }
+        return json.optString("dapp", "");
     }
 
     private static void builCodeResult(String responseBody) {

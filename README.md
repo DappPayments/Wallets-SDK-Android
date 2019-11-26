@@ -3,6 +3,8 @@
 **Dapp Wallet SDK** es la forma de identificar y leer códigos **Dapp** en una aplicación Android. En consecuencia cuenta con las siguientes funcionalidades:
 
 * Comprobar que sea un código QR Dapp válido.
+* Comprobar que sea un código QR Codi válido.
+* Identificar el tipo de código QR.
 * Obtener la información de un código QR Dapp.
 * Invocar el lector de códigos QR de **Dapp Wallet SDK**
 
@@ -29,7 +31,7 @@ repositories {
 ```java
 
 dependencies {
-  implementation 'mx.dapp:wallet-sdk:1.1.0'
+  implementation 'mx.dapp:wallet-sdk:1.2.1'
 }
 
 ```
@@ -101,6 +103,53 @@ try {
                 Log.d("Dapp", exception.getMessage(), exception);
             }
         });
+    }
+} catch (DappException e) {
+    e.printStackTrace();
+}
+
+```
+
+### Comprobar que es un QR Codi válido
+
+1. Invoque las funcionalidades de validar código Codi:
+
+```java
+                 
+try {
+    String code = "{"TYP":20,"v":{"DEV":"00000161803561217910/0"}}";
+    if (DappWallet.isCodi(code)){
+        //do something with valid codi
+    }else{
+        //do somethihg with invalid codi
+    }
+} catch (DappException e) {
+    e.printStackTrace();
+}
+
+```
+
+### Identificar el tipo de QR
+
+1. Invoque las funcionalidades de identificar un código QR. **Dapp Wallet** devolverá un objeto **DappQRType**.
+
+```java
+                 
+try {
+    String code = "{"TYP":20,"v":{"DEV":"00000161803561217910/0"}}";
+    switch(DappWallet.getQRType(code)){
+        case DappQRType.DAPP:
+            //do Dapp stuff
+            break;
+        case DappQRType.CODI:
+            //do Codi stuff
+            break;
+        case DappQRType.CODI_DAPP:
+            //do Dapp-Codi stuff
+            break;
+        case DappQRType.UNKNOWN:
+            //do Unknown stuff
+            break;
     }
 } catch (DappException e) {
     e.printStackTrace();

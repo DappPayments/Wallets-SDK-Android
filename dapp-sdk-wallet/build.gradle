@@ -3,7 +3,7 @@ apply plugin: 'com.android.library'
 ext {
     PUBLISH_GROUP_ID = 'mx.dapp'
     PUBLISH_ARTIFACT_ID = 'wallet-sdk'
-    PUBLISH_VERSION = '1.1.0'
+    PUBLISH_VERSION = '1.2.1'
 }
 
 android {
@@ -11,8 +11,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 29
-        versionCode 1
-        versionName "1.1.0"
+        versionCode 3
+        versionName "1.2.1"
     }
     buildTypes {
         release {
