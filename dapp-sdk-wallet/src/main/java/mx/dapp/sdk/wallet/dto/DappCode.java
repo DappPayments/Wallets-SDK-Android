@@ -2,7 +2,7 @@ package mx.dapp.sdk.wallet.dto;
 
 import org.json.JSONObject;
 
-public class DappWalletPayment {
+public class DappCode {
 
     private String id;
     private String amount;
@@ -10,7 +10,7 @@ public class DappWalletPayment {
     private DappUser user;
     private JSONObject data;
 
-    public DappWalletPayment(JSONObject data) {
+    public DappCode(JSONObject data) {
         this.id = data.optString("id");
         this.amount = data.optString("amount");
         this.description = data.optString("description");
@@ -40,7 +40,7 @@ public class DappWalletPayment {
 
     @Override
     public String toString() {
-        return "DappWalletPayment{" +
+        return "DappCode{" +
                 "id='" + id + '\'' +
                 ", amount='" + amount + '\'' +
                 ", description='" + description + '\'' +

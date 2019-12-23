@@ -1,4 +1,14 @@
 <resources>
     <string name="app_name">Dapp Sdk Wallet</string>
-    <string name="title_activity_reader">ReaderActivity</string>
+    <string name="title_activity_reader">QR Reader</string>
+
+    <string name="ex_error_default">Unknown error</string>
+    <string name="ex_server_response_error">An error has occurred while processing the server response</string>
+    <string name="ex_cancelled">Process canceled by user</string>
+    <string name="ex_invalid_data">Invalid data</string>
+    <string name="ex_reader_library_not_linked">In order to use Dapp QR Scanner, please add \'me.dm7.barcodescanner:zxing\' and \'com.google.zxing:core\' to your gradle</string>
+    <string name="ex_invalid_qr">Invalid QR code</string>
+    <string name="ex_permission_rejected">Permission denied. Cannot use this functionality.</string>
+    <string name="ex_not_init">Dapp Wallet library has not been initialized.</string>
+
 </resources>

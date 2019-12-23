@@ -10,9 +10,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity
-            android:name="mx.dapp.sdk.wallet.gui.ReaderActivity"
+            android:name="mx.dapp.sdk.wallet.gui.DappReaderActivity"
             android:configChanges="keyboard|keyboardHidden|screenSize|screenLayout|orientation"
-            android:label="Dapp Wall"
+            android:label="@string/title_activity_reader"
             android:screenOrientation="portrait"/>
     </application>
 

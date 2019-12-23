@@ -4,6 +4,6 @@
     android:id="@+id/content_frame"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="mx.dapp.sdk.wallet.gui.ReaderActivity">
+    tools:context="mx.dapp.sdk.wallet.gui.DappReaderActivity">
 
 </FrameLayout>

@@ -1,6 +1,7 @@
 package mx.dapp.sdk.wallet.gui;
 
 import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
@@ -11,15 +12,19 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
+import com.google.zxing.BarcodeFormat;
 import com.google.zxing.Result;
+
+import java.util.ArrayList;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 import mx.dapp.sdk.wallet.R;
 import mx.dapp.sdk.wallet.tool.DappWallet;
 
-public class ReaderActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
+public class DappReaderActivity extends AppCompatActivity implements ZXingScannerView.ResultHandler {
 
-    ViewGroup contentFrame;
+    public static final String QR_STR_KEY = "str_code";
+
     private ZXingScannerView mScannerView;
 
     private static final int REQUEST_ACCESS_CAMERA = 225;
@@ -29,8 +34,12 @@ public class ReaderActivity extends AppCompatActivity implements ZXingScannerVie
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_reader);
 
+        ArrayList<BarcodeFormat> formats = new ArrayList<>();
+        formats.add(BarcodeFormat.QR_CODE);
+
         mScannerView = new ZXingScannerView(this);
-        contentFrame = findViewById(R.id.content_frame);
+        mScannerView.setFormats(formats);
+        ViewGroup contentFrame = findViewById(R.id.content_frame);
         contentFrame.addView(mScannerView);
     }
 
@@ -93,8 +102,8 @@ public class ReaderActivity extends AppCompatActivity implements ZXingScannerVie
     public void handleResult(Result result) {
         String code = result.getText();
         Intent intent = getIntent();
-        intent.putExtra(DappWallet.CODE_STR, code);
-        setResult(DappWallet.RESULT_OK, intent);
+        intent.putExtra(QR_STR_KEY, code);
+        setResult(Activity.RESULT_OK, intent);
         stopCamera();
         finish();
     }

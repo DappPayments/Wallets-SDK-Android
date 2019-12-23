@@ -1,5 +1,6 @@
 package mx.dapp.sdk.wallet.network;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Base64;
 
@@ -15,17 +16,16 @@ import javax.net.ssl.SSLContext;
 
 import mx.dapp.sdk.wallet.network.customtls.Tls12SocketFactory;
 import mx.dapp.sdk.wallet.tool.DappWallet;
+import mx.dapp.sdk.wallet.utils.DappException;
 
+class NetworkConnect extends AsyncTask<String, Long, String> {
 
-class DappWalletConnect extends AsyncTask<String, Long, String> {
-
-    private DappResponseProcess dappResponseProcess;
-    private static Exception exception;
-
-    private static final String BASIC_URL = DappWallet.getEnviroment().getTarget();
     private static final String URL_VERSION = "v1";
 
-    private static String performGetCall(String requestUrl) {
+    private Exception exception;
+    private ResponseHandler responseHandler;
+
+    private String performGetCall(String requestUrl) {
         URL url;
         StringBuilder response = new StringBuilder();
 
@@ -77,22 +77,27 @@ class DappWalletConnect extends AsyncTask<String, Long, String> {
         return response.toString();
     }
 
-    DappWalletConnect(DappResponseProcess dappResponseProcess){
-        this.dappResponseProcess = dappResponseProcess;
+    NetworkConnect(Context context,  ResponseHandler responseHandler) throws DappException {
+        if (!DappWallet.isConfigured()) {
+            throw DappWallet.getDappException(context, DappWallet.RESULT_NOT_INIT);
+        }
+
+        this.responseHandler = responseHandler;
     }
 
     @Override
     protected void onPreExecute() {
-        if (dappResponseProcess != null) {
-            dappResponseProcess.processStart();
+        if (responseHandler != null) {
+            responseHandler.processStart();
         }
     }
 
     @Override
     protected String doInBackground(String... strings) {
+        String baseURL = DappWallet.getEnviroment().getTarget();
         String endpoint = strings[0];
 
-        String responseBody = performGetCall(BASIC_URL + URL_VERSION + endpoint);
+        String responseBody = performGetCall(baseURL + URL_VERSION + endpoint);
 
         return responseBody;
     }
@@ -107,14 +112,14 @@ class DappWalletConnect extends AsyncTask<String, Long, String> {
 
     @Override
     protected void onPostExecute(String result) {
-        if (dappResponseProcess != null) {
+        if (responseHandler != null) {
             if (exception != null) {
-                dappResponseProcess.processFailed(exception);
+                responseHandler.processFailed(exception);
                 return;
             }
 
             if (result != null) {
-                dappResponseProcess.processSuccess(result);
+                responseHandler.processSuccess(result);
             }
         }
     }

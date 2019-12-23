@@ -5,6 +5,7 @@
 * Comprobar que sea un código QR Dapp válido.
 * Comprobar que sea un código QR Codi válido.
 * Identificar el tipo de código QR.
+* Obtener el identificador Dapp de un código QR.
 * Obtener la información de un código QR Dapp.
 * Invocar el lector de códigos QR de **Dapp Wallet SDK**
 
@@ -31,7 +32,7 @@ repositories {
 ```java
 
 dependencies {
-  implementation 'mx.dapp:wallet-sdk:1.2.1'
+  implementation 'mx.dapp:wallet-sdk:2.0.0'
 }
 
 ```
@@ -54,7 +55,7 @@ dependencies {
 
 4. Abre el archivo *AndroidManifest.xml*.
 
-5. Añade los elementos *uses-permission* al manifiesto:
+5. Añade los elementos *uses-permission* al manifiesto (solo en caso de necesitarlos):
 
 ```xml
 
@@ -74,7 +75,7 @@ protected void onCreate(Bundle savedInstanceState) {
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-    DappWallet.init(this, getString(R.string.dapp_api_key), DappEnviroment.SANDBOX);
+    DappWallet.init(getString(R.string.dapp_api_key), DappEnviroment.SANDBOX);
 }
 
 ```
@@ -83,29 +84,28 @@ protected void onCreate(Bundle savedInstanceState) {
 
 Una vez completados los pasos de **Configuración** e **Inicio** su aplicación esta lista para integrar las fucionalidades **Dapp Wallet**.
 
+Nota: No es necesario inicializar el SDk si no se usaran las funciones de red
+
+
 ### Comprobar que es un QR Dapp válido y obtener la información del mismo
 
 1. Invoque las funcionalidades de validar y posteriormente la de leer en el cuerpo de la actividad donde se inicio **Dapp Wallet SDK**:
 
 ```java
                  
-try {
-    String qr = "https://dapp.mx/c/oW9BYXqJ";
-    if (DappWallet.isValidDappQR(qr)){
-        DappWallet.readDappQR(qr, new DappWalletCallback() {
-            @Override
-            public void onSuccess(DappWalletPayment payment) {
-                Log.d("Dapp", payment.toString());
-            }
+String qr = "https://dapp.mx/c/oW9BYXqJ";
+if (DappWallet.isValidDappQR(qr)){
+    DappWallet.readDappQR(this, qr, new DappCallback() {
+        @Override
+        public void onSuccess(DappCode dappCode) {
+            Log.d("Dapp", dappCode.toString());
+        }
 
-            @Override
-            public void onError(DappException exception) {
-                Log.d("Dapp", exception.getMessage(), exception);
-            }
-        });
-    }
-} catch (DappException e) {
-    e.printStackTrace();
+        @Override
+        public void onError(DappException exception) {
+            Log.d("Dapp", exception.getMessage(), exception);
+        }
+    });
 }
 
 ```
@@ -116,15 +116,12 @@ try {
 
 ```java
                  
-try {
-    String code = "{"TYP":20,"v":{"DEV":"00000161803561217910/0"}}";
-    if (DappWallet.isCodi(code)){
-        //do something with valid codi
-    }else{
-        //do somethihg with invalid codi
-    }
-} catch (DappException e) {
-    e.printStackTrace();
+
+String code = "{"TYP":20,"v":{"DEV":"00000111101111111110/0"}}";
+if (DappWallet.isCodi(code)) {
+    //do something with valid codi
+} else {
+    //do somethihg with invalid codi
 }
 
 ```
@@ -135,24 +132,37 @@ try {
 
 ```java
                  
-try {
-    String code = "{"TYP":20,"v":{"DEV":"00000161803561217910/0"}}";
-    switch(DappWallet.getQRType(code)){
-        case DappQRType.DAPP:
-            //do Dapp stuff
-            break;
-        case DappQRType.CODI:
-            //do Codi stuff
-            break;
-        case DappQRType.CODI_DAPP:
-            //do Dapp-Codi stuff
-            break;
-        case DappQRType.UNKNOWN:
-            //do Unknown stuff
-            break;
-    }
-} catch (DappException e) {
-    e.printStackTrace();
+
+String code = "{"TYP":20,"v":{"DEV":"00000161803561217910/0"}}";
+switch(DappWallet.getQRType(code)) {
+    case DappQRType.DAPP:
+        //do Dapp stuff
+        break;
+    case DappQRType.CODI:
+        //do Codi stuff
+        break;
+    case DappQRType.CODI_DAPP:
+        //do Dapp-Codi stuff
+        break;
+    case DappQRType.UNKNOWN:
+        //do Unknown stuff
+        break;
+}
+
+```
+
+### Obtener el identificador Dapp de un código QR
+
+1. Invoque las funcionalidades de obtener identificador Dapp.
+
+```java
+                 
+String code = "https://dapp.mx/c/oW9BYXqJ";
+String id = DappWallet.getDappId(code);
+if (id != null) {
+    //do something with Dapp id
+} else {
+    //do somethihg with invalid code
 }
 
 ```
@@ -170,32 +180,32 @@ dependencies {
 
 ```
 
-2. Al ejecutar el metodo *DappWallet.dappReader* se iniciara una activity nueva mostrando el scanner de códigos, el call back recibe los datos del código en caso de que sea valido o un error en caso contrario:
+2. Al ejecutar el metodo *DappWallet.dappReader* se iniciara una activity nueva mostrando el scanner de códigos:
 
 ```java
 
-DappWallet.dappReader(new DappWalletCallback() {
-    @Override
-    public void onSuccess(DappWalletPayment payment) {
-        Log.d("Dapp", payment.toString());
-    }
-
-    @Override
-    public void onError(DappException exception) {
-        Log.d("Dapp", exception.getMessage(), exception);
-    }
-});
+DappWallet.dappReader(this);
 
 ```
 
-3. En el método *onActivityResult* devuelva el resultado a **Dapp Wallet SDK**:
+3. En el método *onActivityResult* devuelva el resultado a **Dapp Wallet SDK**, el call back recibe los datos del código en caso de que sea valido o un error en caso contrario:
 
 ```java
 
 @Override
 public void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
-    DappWallet.onReaderResult(requestCode, resultCode, data);
+    DappWallet.onReaderResult(this, requestCode, resultCode, data, new DappCallback() {
+        @Override
+        public void onSuccess(DappCode dappCode) {
+            Log.d("Dapp", dappCode.toString());
+        }
+
+        @Override
+        public void onError(DappException exception) {
+            Log.d("Dapp", exception.getMessage(), exception);
+        }
+    });
 }
 
 ```
